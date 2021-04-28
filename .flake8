@@ -1,0 +1,14 @@
+[flake8]
+max-line-length = 80
+max-complexity = 10
+exclude =
+    .git,
+    .idea,
+    .venv,
+    __pycache__,
+    .mypy_cache,
+    .pytest_cache
+ignore =
+    E203
+per-file-ignores =
+    __init__.py : F401
