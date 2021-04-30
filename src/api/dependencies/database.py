@@ -21,4 +21,4 @@ async def get_db(
         yield session
     finally:
         logger.debug("Closing the database session")
-        session.close()
+        await session.close()

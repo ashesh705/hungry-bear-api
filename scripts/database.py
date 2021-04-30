@@ -2,6 +2,7 @@
 
 import asyncio
 import logging
+import sys
 
 from src.models import Base
 from src.utils.database import Connection
@@ -22,4 +23,7 @@ async def main() -> None:
 
 
 if __name__ == "__main__":
+    if sys.platform == "win32":
+        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+
     asyncio.run(main())

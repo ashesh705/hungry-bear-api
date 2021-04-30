@@ -1,5 +1,6 @@
 """ Configuration for the API"""
 
+import json
 import pathlib
 from functools import cache
 from typing import Literal
@@ -18,21 +19,46 @@ class Config(BaseSettings):
     database_uri: str
 
 
-def _get_database_uri() -> str:
+def _get_dev_database_uri() -> str:
     directory = pathlib.Path(__file__).parent.parent.parent
     db_file = directory / "app.db"
 
     return f"sqlite+aiosqlite:///{db_file}"
 
 
+class DatabaseConfig(BaseSettings):
+    host: str
+    port: int
+
+    database: str
+
+    user: str
+    password: str
+
+
+def _get_prod_database_uri() -> str:
+    directory = pathlib.Path(__file__).parent.parent.parent
+    config_file = directory / "database.json"
+
+    with config_file.open() as f:
+        ob = DatabaseConfig.parse_obj(json.load(f))
+
+    return (
+        f"postgresql+asyncpg://{ob.user}:{ob.password}"
+        f"@{ob.host}:{ob.port}/{ob.database}"
+    )
+
+
 class _DevConfig(Config):
     environment: Literal[Environment.DEVELOPMENT]
 
-    database_uri: str = Field(default_factory=_get_database_uri)
+    database_uri: str = Field(default_factory=_get_dev_database_uri)
 
 
 class _ProdConfig(Config):
     environment: Literal[Environment.PRODUCTION]
+
+    database_uri: str = Field(default_factory=_get_prod_database_uri)
 
 
 class _TestConfig(Config):

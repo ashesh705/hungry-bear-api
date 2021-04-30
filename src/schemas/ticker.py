@@ -24,6 +24,6 @@ class LotSize(Base):
 class Ticker(Base):
     symbol: str = Field(min_length=1, max_length=MAX_LENGTH_SYMBOL)
     name: str = Field(min_length=1, max_length=MAX_LENGTH_NAME)
-    underlying_type: TickerType
+    ticker_type: TickerType
 
-    lot_sizes: list[LotSize]
+    lot_sizes: list[LotSize] = []

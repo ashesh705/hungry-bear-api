@@ -17,29 +17,25 @@ from .base import Base
 
 
 class Option(Base):
-    __tablename__ = "OPTIONS"
+    __tablename__ = "options"
 
     symbol = Column(
-        "SYMBOL",
         String(MAX_LENGTH_SYMBOL),
-        ForeignKey("TICKERS.SYMBOL", ondelete="CASCADE"),
+        ForeignKey("tickers.symbol", ondelete="CASCADE"),
         primary_key=True,
     )
-    expiry = Column("EXPIRY", Date(), primary_key=True)
+    expiry = Column(Date(), primary_key=True)
 
     option_type = Column(
-        "OPTION_TYPE",
         Enum(OptionType, create_constraint=True),
         primary_key=True,
     )
-    strike = Column(
-        "STRIKE", Numeric(), CheckConstraint("STRIKE > 0"), primary_key=True
-    )
+    strike = Column(Numeric(), CheckConstraint("strike > 0"), primary_key=True)
 
     __table_args__ = (
         ForeignKeyConstraint(
-            ("SYMBOL", "EXPIRY"),
-            ["LOT_SIZES.SYMBOL", "LOT_SIZES.EXPIRY"],
+            ("symbol", "expiry"),
+            ["lot_sizes.symbol", "lot_sizes.expiry"],
             ondelete="CASCADE",
         ),
     )
