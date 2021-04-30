@@ -30,4 +30,4 @@ jobs:
                   poetry add codecov
             - name: Test
               run: |
-                  poetry run python -m pytest --cov && poetry run codecov
+                  poetry run pytest --cov && poetry run codecov

@@ -1,19 +1,35 @@
 """ Fixtures for testing the API"""
 
-from collections.abc import AsyncGenerator, Generator
+import logging
+from collections.abc import AsyncGenerator
 
 import pytest
+from fastapi import FastAPI
 from httpx import AsyncClient
 
-from src.api import API, create_api
+from src.api import create_api
+from src.models import Base
+from src.utils.database import Connection
+
+logger = logging.getLogger(__name__)
 
 
 @pytest.fixture
-def api() -> Generator[API, None, None]:
-    yield create_api()
+async def api() -> AsyncGenerator[FastAPI, None]:
+    conn = Connection()
+    engine = conn.engine
+
+    async with engine.begin() as db:
+        logger.info("Creating all tables")
+        await db.run_sync(Base.metadata.create_all)
+
+        yield create_api()
+
+        logger.info("Dropping all tables")
+        await db.run_sync(Base.metadata.drop_all)
 
 
 @pytest.fixture
-async def client(api: API) -> AsyncGenerator[AsyncClient, None]:
+async def client(api: FastAPI) -> AsyncGenerator[AsyncClient, None]:
     async with AsyncClient(app=api, base_url="http://test") as client:
         yield client
