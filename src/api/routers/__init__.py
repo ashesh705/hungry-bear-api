@@ -13,7 +13,9 @@ class _Router(BaseModel):
     @validator("prefix")
     def is_valid_prefix(cls, v: str) -> str:
         if not v.startswith("/"):
-            raise ValueError(f"Invalid prefix {v}, must start with /")
+            raise ValueError(
+                f"Invalid prefix {v}, must start with /"
+            )  # pragma: no cover
 
         return v
 
