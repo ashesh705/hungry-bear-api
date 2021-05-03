@@ -29,6 +29,10 @@ class Ticker(Base):
         "LotSize", backref="ticker", cascade="all, delete-orphan"
     )
 
+    options = relationship(
+        "Option", backref="ticker", cascade="all, delete-orphan"
+    )
+
 
 class LotSize(Base):
     __tablename__ = "lot_sizes"
@@ -42,4 +46,8 @@ class LotSize(Base):
 
     lot_size = Column(
         "lot_size", Integer(), CheckConstraint("lot_size > 0"), nullable=False
+    )
+
+    options = relationship(
+        "Option", backref="lot_size", cascade="all, delete-orphan"
     )
