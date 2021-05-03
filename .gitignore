@@ -136,3 +136,6 @@ dmypy.json
 
 # Local files
 data/
+
+# Local settings
+database.json

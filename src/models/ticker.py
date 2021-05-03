@@ -17,30 +17,37 @@ from .base import Base
 
 
 class Ticker(Base):
-    __tablename__ = "TICKERS"
+    __tablename__ = "tickers"
 
-    symbol = Column("SYMBOL", String(MAX_LENGTH_SYMBOL), primary_key=True)
-    name = Column("NAME", String(MAX_LENGTH_NAME), nullable=False)
+    symbol = Column(String(MAX_LENGTH_SYMBOL), primary_key=True)
+    name = Column(String(MAX_LENGTH_NAME), nullable=False)
     ticker_type = Column(
-        "TICKER_TYPE", Enum(TickerType, create_constraint=True), nullable=False
+        Enum(TickerType, create_constraint=True), nullable=False
     )
 
     lot_sizes = relationship(
         "LotSize", backref="ticker", cascade="all, delete-orphan"
     )
 
+    options = relationship(
+        "Option", backref="ticker", cascade="all, delete-orphan"
+    )
+
 
 class LotSize(Base):
-    __tablename__ = "LOT_SIZES"
+    __tablename__ = "lot_sizes"
 
     symbol = Column(
-        "SYMBOL",
         String(MAX_LENGTH_SYMBOL),
-        ForeignKey("TICKERS.SYMBOL", ondelete="CASCADE"),
+        ForeignKey("tickers.symbol", ondelete="CASCADE"),
         primary_key=True,
     )
-    expiry = Column("EXPIRY", Date(), primary_key=True)
+    expiry = Column("expiry", Date(), primary_key=True)
 
     lot_size = Column(
-        "LOT_SIZE", Integer(), CheckConstraint("LOT_SIZE > 0"), nullable=False
+        "lot_size", Integer(), CheckConstraint("lot_size > 0"), nullable=False
+    )
+
+    options = relationship(
+        "Option", backref="lot_size", cascade="all, delete-orphan"
     )

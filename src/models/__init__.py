@@ -2,4 +2,4 @@
 
 from .base import Base
 from .option import Option
-from .ticker import Ticker
+from .ticker import LotSize, Ticker

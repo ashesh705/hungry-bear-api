@@ -16,14 +16,20 @@ class TickerType(Enum):
     INDEX = "INDEX"
 
 
-class LotSize(Base):
-    expiry: date
-    lot_size: int = Field(gt=0)
+class LotSizeData(Base):
+    date: date
+    lot_size: int
 
 
 class Ticker(Base):
     symbol: str = Field(min_length=1, max_length=MAX_LENGTH_SYMBOL)
     name: str = Field(min_length=1, max_length=MAX_LENGTH_NAME)
-    underlying_type: TickerType
+    ticker_type: TickerType
 
-    lot_sizes: list[LotSize]
+    lot_size_data: list[LotSizeData] = []
+
+
+class LotSize(Base):
+    symbol: str = Field(min_length=1, max_length=MAX_LENGTH_SYMBOL)
+    expiry: date
+    lot_size: int = Field(gt=0)
