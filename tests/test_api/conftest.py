@@ -9,15 +9,14 @@ from httpx import AsyncClient
 
 from src.api import create_api
 from src.models import Base
-from src.utils.database import Connection
+from src.utils.database import connection
 
 logger = logging.getLogger(__name__)
 
 
 @pytest.fixture
 async def api() -> AsyncGenerator[FastAPI, None]:
-    conn = Connection()
-    engine = conn.engine
+    engine = connection.engine
 
     async with engine.begin() as db:
         logger.info("Creating all tables")

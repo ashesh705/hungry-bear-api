@@ -5,14 +5,13 @@ import logging
 import sys
 
 from src.models import Base
-from src.utils.database import Connection
+from src.utils.database import connection
 
 logger = logging.getLogger(__name__)
 
 
 async def main() -> None:
-    conn = Connection()
-    engine = conn.engine
+    engine = connection.engine
 
     async with engine.begin() as db:
         logger.info("Cleaning up the database")
