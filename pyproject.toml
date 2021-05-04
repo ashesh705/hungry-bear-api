@@ -43,7 +43,8 @@ testpaths = [
 ]
 filterwarnings = [
     "error",
-    "ignore:.*deprecated and ignored since IPython.*:DeprecationWarning"
+    "ignore:.*deprecated and ignored since IPython.*:DeprecationWarning",
+    "ignore:.*will copy column.*:sqlalchemy.exc.SAWarning"
 ]
 
 [tool.coverage.run]

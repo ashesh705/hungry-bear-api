@@ -13,7 +13,7 @@ from sqlalchemy.orm import sessionmaker
 from src.config import get_config
 
 
-class Connection:
+class _Connection:
     @cached_property
     def _database_uri(self) -> str:
         config = get_config()
@@ -44,3 +44,6 @@ class Connection:
             class_=AsyncSession,
             future=True,
         )
+
+
+connection = _Connection()

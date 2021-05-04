@@ -4,6 +4,7 @@ from fastapi import APIRouter
 from pydantic import BaseModel, validator
 
 from .heartbeat import router as heartbeat_router
+from .ticker import router as ticker_router
 
 
 class _Router(BaseModel):
@@ -12,10 +13,8 @@ class _Router(BaseModel):
 
     @validator("prefix")
     def is_valid_prefix(cls, v: str) -> str:
-        if not v.startswith("/"):
-            raise ValueError(
-                f"Invalid prefix {v}, must start with /"
-            )  # pragma: no cover
+        if not v.startswith("/"):  # pragma: no cover
+            raise ValueError(f"Invalid prefix {v}, must start with /")
 
         return v
 
@@ -27,4 +26,7 @@ class _Router(BaseModel):
         arbitrary_types_allowed = True
 
 
-routers = [_Router(prefix="/heartbeat", api_router=heartbeat_router)]
+routers = [
+    _Router(prefix="/heartbeat", api_router=heartbeat_router),
+    _Router(prefix="/ticker", api_router=ticker_router),
+]

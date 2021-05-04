@@ -3,19 +3,16 @@
 import logging
 from collections.abc import AsyncGenerator
 
-from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.utils.database import Connection
+from src.utils.database import connection
 
 logger = logging.getLogger(__name__)
 
 
-async def get_db(
-    conn: Connection = Depends(),
-) -> AsyncGenerator[AsyncSession, None]:
+async def get_db() -> AsyncGenerator[AsyncSession, None]:
     logger.debug("Opening a database session")
-    session = conn.session_factory()
+    session = connection.session_factory()
 
     try:
         yield session

@@ -15,19 +15,19 @@ from src.models import LotSize as LotSizeModel
 from src.models import Option as OptionModel
 from src.models import Ticker as TickerModel
 from src.schemas import (
-    LotSize,
     LotSizeData,
+    LotSizeIn,
     Option,
     OptionType,
-    Ticker,
+    TickerIn,
     TickerType,
 )
-from src.utils.database import Connection
+from src.utils.database import connection
 
 logger = logging.getLogger(__name__)
 
 
-def _to_ticker(node: dict[str, str], ticker_type: TickerType) -> Ticker:
+def _to_ticker(node: dict[str, str], ticker_type: TickerType) -> TickerIn:
     DATE_FORMAT = "%b-%y"
 
     node = {key.strip(): value.strip() for key, value in node.items()}
@@ -44,7 +44,7 @@ def _to_ticker(node: dict[str, str], ticker_type: TickerType) -> Ticker:
         except ValueError:
             continue
 
-    return Ticker(
+    return TickerIn(
         symbol=node["SYMBOL"],
         name=node["UNDERLYING"],
         ticker_type=ticker_type,
@@ -52,7 +52,7 @@ def _to_ticker(node: dict[str, str], ticker_type: TickerType) -> Ticker:
     )
 
 
-async def _get_tickers() -> list[Ticker]:
+async def _get_tickers() -> list[TickerIn]:
     url = "https://archives.nseindia.com/content/fo/fo_mktlots.csv"
 
     async with AsyncClient() as client:
@@ -77,7 +77,7 @@ async def _get_cookies(client: AsyncClient) -> dict:
     return dict(resp.cookies)
 
 
-def _get_endpoint(ticker: Ticker) -> str:
+def _get_endpoint(ticker: TickerIn) -> str:
     if ticker.ticker_type == TickerType.INDEX:
         return "option-chain-indices"
     elif ticker.ticker_type == TickerType.STOCK:
@@ -121,7 +121,7 @@ def _to_options(node: dict) -> Iterable[Option]:
 
 
 async def _get_options_for_ticker(
-    ticker: Ticker, client: AsyncClient, cookies: dict
+    ticker: TickerIn, client: AsyncClient, cookies: dict
 ) -> Iterable[Option]:
     url = "/api/{endpoint}"
     params = {"symbol": ticker.symbol}
@@ -136,7 +136,7 @@ async def _get_options_for_ticker(
     return _to_options(data["records"])
 
 
-async def _get_options(tickers: Iterable[Ticker]) -> Iterable[Option]:
+async def _get_options(tickers: Iterable[TickerIn]) -> Iterable[Option]:
     url = "https://www.nseindia.com"
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
@@ -159,8 +159,8 @@ async def _get_options(tickers: Iterable[Ticker]) -> Iterable[Option]:
 
 
 async def _get_lot_sizes(
-    tickers: Iterable[Ticker], options: list[Option]
-) -> list[LotSize]:
+    tickers: Iterable[TickerIn], options: list[Option]
+) -> list[LotSizeIn]:
     symbols = {o.symbol for o in options}
     expiries = {
         s: {
@@ -180,7 +180,7 @@ async def _get_lot_sizes(
             node = next(
                 node for node in ticker.lot_size_data if node.date == level
             )
-            lot_size = LotSize(
+            lot_size = LotSizeIn(
                 symbol=ticker.symbol, expiry=expiry, lot_size=node.lot_size
             )
             lot_sizes.append(lot_size)
@@ -189,14 +189,12 @@ async def _get_lot_sizes(
 
 
 async def _save_to_database(
-    tickers: Iterable[Ticker],
-    lot_sizes: Iterable[LotSize],
+    tickers: Iterable[TickerIn],
+    lot_sizes: Iterable[LotSizeIn],
     options: Iterable[Option],
 ) -> None:
-    conn = Connection()
-
     logger.info("Opening a database session")
-    session = conn.session_factory()
+    session = connection.session_factory()
 
     try:
         logger.info("Deleting all options")

@@ -21,15 +21,28 @@ class LotSizeData(Base):
     lot_size: int
 
 
-class Ticker(Base):
+class _Ticker(Base):
     symbol: str = Field(min_length=1, max_length=MAX_LENGTH_SYMBOL)
     name: str = Field(min_length=1, max_length=MAX_LENGTH_NAME)
     ticker_type: TickerType
 
+
+class TickerIn(_Ticker):
     lot_size_data: list[LotSizeData] = []
 
 
-class LotSize(Base):
-    symbol: str = Field(min_length=1, max_length=MAX_LENGTH_SYMBOL)
+class _LotSize(Base):
     expiry: date
     lot_size: int = Field(gt=0)
+
+
+class LotSizeIn(_LotSize):
+    symbol: str = Field(min_length=1, max_length=MAX_LENGTH_SYMBOL)
+
+
+class LotSizeOut(_LotSize):
+    pass
+
+
+class TickerOut(_Ticker):
+    lot_sizes: list[LotSizeOut]
